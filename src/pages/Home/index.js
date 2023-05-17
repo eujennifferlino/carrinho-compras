@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   SafeAreaView, 
   FlatList, 
-  TouchableOpacity 
+  TouchableOpacity
 } from 'react-native';
+
 import { Feather } from '@expo/vector-icons';
+import Product from '../../components/Product';
+import { useNavigation } from '@react-navigation/native';
+import { CartContext } from '../../contexts/CartContext';
 
 export default function Home(){
+  const { cart, addItemCart } = useContext(CartContext)
+
+  const navigation = useNavigation();
   const [products, setProducts] = useState([
     {
       id: '1',
-      name: "Coca-Cola",
+      name: "Coca cola",
       price: 19.90
     },
     {
@@ -33,27 +40,46 @@ export default function Home(){
     },
     {
       id: '6',
-      name: "Guárana Diet (lata)",
+      name: "Guarana lata",
       price: 6.00
     },
-  ]);
+  ])
+
+  function handleAddCart(item){
+    addItemCart(item)
+  }
 
   return(
-    <SafeAreaView style={styles.container}>
-      <View style={styles.cartContent}>
-        <Text style={styles.title}>Produtos</Text>
-        <TouchableOpacity style={styles.cartButton}>
-          <View style={styles.dot}>
-            <Text style={styles.dotText}>3</Text>
-          </View>
-          <Feather name="shopping-cart" size={30} color="#000"/>
+    <SafeAreaView style={stlyes.container}>
+      <View style={stlyes.cartContent}>
+        <Text style={stlyes.title}>Produtos</Text>
+
+        <TouchableOpacity 
+        style={stlyes.cartButton} 
+        onPress={ () => navigation.navigate("Cart")}
+        >
+          {cart.length >= 1 && (
+            <View style={stlyes.dot}>
+              <Text style={stlyes.dotText}>
+                {cart?.length}
+              </Text>
+            </View>
+          )}
+          <Feather name="shopping-cart" size={30} color="#000" />
         </TouchableOpacity>
       </View>
+
+      <FlatList
+        style={stlyes.list}
+        data={products}
+        keyExtractor={ (item) => String(item.id) }
+        renderItem={ ({ item }) => <Product data={item} addToCart={ () => handleAddCart(item) } /> }
+      />
     </SafeAreaView>
   )
 }
 
-const styles = StyleSheet.create({
+const stlyes = StyleSheet.create({
   container:{
     flex:1,
     backgroundColor: '#FAFAFA',
@@ -74,7 +100,7 @@ const styles = StyleSheet.create({
   dot:{
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: "##D80000",
+    backgroundColor: "red",
     width: 20,
     height: 20,
     borderRadius: 12,
@@ -85,6 +111,5 @@ const styles = StyleSheet.create({
   },
   dotText:{
     fontSize: 12,
-    fontWeight: 'bold'
   }
 })
